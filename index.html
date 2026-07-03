@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>🧾 Тест на невменяемость · Детский садик #Деградация</title>
+    <style>
+        :root {
+            --bg: #f5f5f5;
+            --card-bg: #ffffff;
+            --border: #333333;
+            --text: #1a1a1a;
+            --accent: #000000;
+            --input-bg: #ffffff;
+            --shadow: 4px 4px 0 #000;
+            --font: 'Courier New', 'Liberation Mono', 'Consolas', monospace;
+        }
+        body.mono-light { --bg: #f0f0f0; --card-bg: #ffffff; --border: #222; --text: #111; --accent: #000; --input-bg: #fff; }
+        body.mono-dark { --bg: #1e1e1e; --card-bg: #2a2a2a; --border: #888; --text: #ddd; --accent: #ccc; --input-bg: #333; color-scheme: dark; }
+        body.high-contrast { --bg: #000; --card-bg: #000; --border: #fff; --text: #fff; --accent: #ff0; --input-bg: #000; }
+        body.sepia { --bg: #f4ecd8; --card-bg: #faf3e6; --border: #5c4b3a; --text: #3b2c1e; --accent: #8b5e3c; --input-bg: #fffaf0; }
+        body.matrix { --bg: #0c0c0c; --card-bg: #0f0f0f; --border: #00ff41; --text: #00ff41; --accent: #00ff41; --input-bg: #0a0a0a; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font); }
+        body {
+            background: var(--bg); color: var(--text);
+            display: flex; flex-direction: column; align-items: center;
+            padding: 2rem 1rem; min-height: 100vh;
+            transition: background 0.2s, color 0.2s;
+        }
+        .theme-switcher {
+            position: fixed; top: 15px; right: 20px; z-index: 999;
+            display: flex; gap: 0.5rem; background: var(--card-bg);
+            border: 2px solid var(--border); padding: 0.5rem 1rem;
+            box-shadow: var(--shadow); font-size: 0.9rem;
+        }
+        .theme-switcher select {
+            background: var(--input-bg); color: var(--text);
+            border: 1px solid var(--border); font-family: inherit; padding: 0.2rem;
+        }
+        .container {
+            max-width: 900px; width: 100%; background: var(--card-bg);
+            border: 3px solid var(--border); box-shadow: 10px 10px 0 var(--accent);
+            padding: 2rem 2rem 2.5rem; margin-top: 3rem;
+        }
+        h1 {
+            font-size: 2.2rem; text-align: center; text-transform: uppercase;
+            letter-spacing: 2px; border-bottom: 3px solid var(--border);
+            padding-bottom: 0.5rem; margin-bottom: 1.8rem; word-break: break-word;
+        }
+        .subtitle {
+            text-align: center; font-weight: bold; background: var(--accent);
+            color: var(--card-bg); padding: 0.4rem 1rem; display: inline-block;
+            margin: 0 auto 2rem auto; border: 2px solid var(--border);
+            font-size: 1.1rem; letter-spacing: 1px;
+        }
+        .anketa-block {
+            border: 2px dashed var(--border); padding: 1.5rem;
+            margin-bottom: 2.5rem; background: var(--input-bg);
+        }
+        .anketa-block h2 {
+            font-size: 1.4rem; margin-bottom: 1.2rem; text-transform: uppercase;
+            border-bottom: 1px solid var(--border); padding-bottom: 0.3rem;
+        }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.8rem; align-items: start; }
+        .full-width { grid-column: span 2; }
+        label { font-weight: bold; display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.9rem; letter-spacing: 0.5px; }
+        input, select, textarea {
+            background: var(--input-bg); border: 2px solid var(--border);
+            padding: 0.5rem; font-family: inherit; color: var(--text);
+            font-size: 0.95rem; border-radius: 0; resize: vertical;
+        }
+        textarea { min-height: 70px; }
+        .age-extra { display: none; margin-top: 0.5rem; grid-column: span 2; border-top: 1px dashed var(--border); padding-top: 0.8rem; }
+        .hint-text { font-size: 0.8rem; font-weight: normal; opacity: 0.8; margin-top: 2px; }
+        .test-section { margin: 2rem 0 2rem; }
+        .question-card {
+            border: 2px solid var(--border); padding: 1rem 1.2rem;
+            margin-bottom: 1.5rem; background: var(--card-bg); box-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+        }
+        .q-title { font-weight: bold; font-size: 1.1rem; margin-bottom: 0.8rem; display: flex; align-items: baseline; gap: 6px; }
+        .options { display: flex; flex-direction: column; gap: 0.5rem; margin-left: 1rem; }
+        .option-label { display: flex; align-items: center; gap: 0.7rem; font-size: 1rem; padding: 0.3rem 0; cursor: pointer; }
+        input[type="radio"] {
+            appearance: none; width: 18px; height: 18px; border: 2px solid var(--border);
+            background: var(--input-bg); border-radius: 50%; display: grid;
+            place-content: center; cursor: pointer; flex-shrink: 0;
+        }
+        input[type="radio"]::before {
+            content: ""; width: 10px; height: 10px; border-radius: 50%;
+            transform: scale(0); transition: 0.1s; background: var(--accent);
+        }
+        input[type="radio"]:checked::before { transform: scale(1); }
+
+        .button-wrapper { display: flex; justify-content: center; margin: 2rem 0 1rem; }
+        #submit-btn {
+            background: var(--accent); color: var(--card-bg); border: 3px solid var(--border);
+            font-size: 1.3rem; font-weight: bold; padding: 0.9rem 2.8rem;
+            text-transform: uppercase; cursor: pointer; box-shadow: 5px 5px 0 var(--border);
+            transition: 0.1s linear; letter-spacing: 2px; font-family: inherit;
+            opacity: 0.5; pointer-events: none;
+        }
+        #submit-btn.active { opacity: 1; pointer-events: auto; }
+        #submit-btn:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 var(--border); }
+
+        .result-box {
+            margin-top: 1.5rem; padding: 1.2rem; border: 3px solid var(--border);
+            text-align: center; font-size: 1.5rem; font-weight: bold;
+            background: var(--input-bg); display: none;
+        }
+        .result-box.show { display: block; }
+        .status-text { font-size: 0.9rem; margin-top: 0.3rem; }
+
+        @media (max-width: 650px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .full-width, .age-extra { grid-column: span 1; }
+            .container { padding: 1.2rem; }
+        }
+    </style>
+</head>
+<body class="mono-light">
+<div class="theme-switcher">
+    <label for="themeSelect">🎨 ТЕМА</label>
+    <select id="themeSelect">
+        <option value="mono-light">Светлая моно</option>
+        <option value="mono-dark">Тёмная моно</option>
+        <option value="high-contrast">Контраст</option>
+        <option value="sepia">Сепия</option>
+        <option value="matrix">Матрица</option>
+    </select>
+</div>
+
+<div class="container">
+    <h1>🧠 ТЕСТ НА НЕВМЕНЯЕМОСТЬ</h1>
+    <div style="text-align: center;">
+        <span class="subtitle">Детский садик #Деградация</span>
+    </div>
+
+    <div class="anketa-block">
+        <h2>📋 АНКЕТА СОИСКАТЕЛЯ</h2>
+        <div class="form-grid">
+            <label>Имя <input type="text" id="name" placeholder="Твоё погоняло" required></label>
+            <label>Роли <span class="hint-text">(роли которые сказал админ вводить)</span> 
+                <input type="text" id="roles" placeholder="Например: Деградант, Клоун">
+            </label>
+            <label class="full-width">Описание <textarea id="description" placeholder="Пара слов о твоей деградации..."></textarea></label>
+            <label>Пол 
+                <select id="gender" required>
+                    <option value="">-- выбери --</option>
+                    <option>Мужской</option>
+                    <option>Женский</option>
+                    <option>Боевой вертолёт</option>
+                    <option>Не определился</option>
+                </select>
+            </label>
+            <label>Возраст <input type="number" id="age" min="1" max="120" placeholder="Сколько стукнуло" required></label>
+            <div id="educationBlock" class="age-extra full-width">
+                <label>Образование (если >18) <input type="text" id="education" placeholder="Высшее, среднее, 9 классов коридора..."></label>
+            </div>
+            <label>Ник админа, который проверяет 
+                <input type="text" id="adminNick" placeholder="Введи ник админа" required>
+                <div class="status-text" id="adminNickStatus"></div>
+            </label>
+            <label>Пароль администратора 
+                <input type="text" id="adminPass" placeholder="Введи пароль" required>
+                <div class="status-text" id="adminPassStatus"></div>
+            </label>
+        </div>
+    </div>
+
+    <div class="test-section" id="testContainer"></div>
+
+    <div class="button-wrapper">
+        <button id="submit-btn" disabled>🔒 ВВЕДИТЕ НИК И ПАРОЛЬ АДМИНА</button>
+    </div>
+
+    <div id="result" class="result-box"></div>
+</div>
+
+<script>
+    (function() {
+        const questionsData = [
+            { q: "Что делать, если начальник просит отчёт, а ты его не сделал?", opts: ["Сказать, что съел документы", "Притвориться мёртвым", "Объяснить задержку", "Попросить отсрочку"], correct: 0 },
+            { q: "Как лучше всего инвестировать зарплату?", opts: ["Купить лотерейные билеты", "Вложить в криптохомяков", "Открыть вклад под процент", "Инвестировать в образование"], correct: 0 },
+            { q: "Ваш партнёр забыл про годовщину. Ваши действия?", opts: ["Устроить истерику и уйти жить к маме", "Забыть в ответ его день рождения", "Поговорить спокойно", "Напомнить мягко"], correct: 0 },
+            { q: "Вы обнаружили просроченный йогурт в холодильнике.", opts: ["Съесть, может повезёт", "Использовать как маску для лица", "Выбросить в мусорку", "Проверить срок годности"], correct: 0 },
+            { q: "Как реагировать на хамство в транспорте?", opts: ["Начать громко квакать", "Показать язык и убежать", "Проигнорировать", "Вежливо ответить"], correct: 0 },
+            { q: "Что делать, если на совещании заснул коллега?", opts: ["Нарисовать у него на лбу фломастером", "Подложить кнопку на стул", "Разбудить шепотом", "Тихо толкнуть локтем"], correct: 0 },
+            { q: "Вы выиграли миллион долларов. Первое действие?", opts: ["Купить остров и назвать его своим именем", "Заказать пиццу с ананасами на всё", "Положить в банк", "Посоветоваться с финансовым советником"], correct: 0 },
+            { q: "Лучший способ решить конфликт с соседом?", opts: ["Подбросить ему в почтовый ящик живую мышь", "Писать жалобы в ЖЭК каждый день", "Поговорить и найти компромисс", "Пригласить на чай"], correct: 0 },
+            { q: "Что такое ипотека?", opts: ["Когда банк даёт тебе деньги, а ты потом прячешься", "Пожизненное рабство за квартиру", "Кредит на недвижимость", "Долгосрочное обязательство"], correct: 0 },
+            { q: "Как поступить, если разонравилась работа?", opts: ["Притвориться инопланетянином и уйти", "Перестать ходить без объяснений", "Найти новую и уволиться", "Обсудить с руководством"], correct: 0 },
+            { q: "Ваш друг постоянно опаздывает.", opts: ["Перевести все его часы на час назад", "Начать ему звонить каждый час ночью", "Поговорить о пунктуальности", "Договориться о штрафе за опоздание"], correct: 0 },
+            { q: "Что подарить на свадьбу, если нет денег?", opts: ["Красивую открытку с обещанием подарить что-нибудь потом", "Свой старый тостер", "Пожелать счастья от души", "Сделать handmade подарок"], correct: 0 },
+            { q: "Как лучше всего запомнить важную информацию?", opts: ["Написать на руке и не мыться неделю", "Повторять её вслух на остановке", "Записать в блокнот", "Использовать мнемотехники"], correct: 0 },
+            { q: "Что делать, если в ресторане принесли не то блюдо?", opts: ["Закатить сцену с битьём посуды", "Молча уйти не заплатив", "Вежливо попросить заменить", "Сообщить официанту"], correct: 0 },
+            { q: "Вы случайно разбили телефон друга.", opts: ["Сказать, что это был полтергейст", "Купить ему новый, но позже", "Честно признаться и предложить возместить", "Предложить ремонт"], correct: 0 },
+            { q: "Как перестать прокрастинировать?", opts: ["Ждать вдохновения ещё сильнее", "Смотреть мотивационные видео 5 часов", "Разбить задачу на маленькие шаги", "Начать с самого простого"], correct: 0 },
+            { q: "Что такое дедлайн?", opts: ["Время, когда можно всё отменить", "Мифическое существо, которое кусает ленивых", "Крайний срок сдачи работы", "Ограничение по времени"], correct: 0 },
+            { q: "Как реагировать на критику в соцсетях?", opts: ["Забанить всех и написать гневный пост", "Пожаловаться маме в личку", "Проанализировать и учесть", "Ответить конструктивно"], correct: 0 },
+            { q: "Вы нашли чужой кошелёк с деньгами.", opts: ["Оставить себе, это знак вселенной", "Раздать деньги прохожим", "Попытаться найти владельца", "Отнести в полицию"], correct: 0 },
+            { q: "Зачем нужны налоги?", opts: ["Чтобы чиновникам было на что покупать яхты", "Для содержания дорог и школ (но это не точно)", "Для финансирования государства", "Для общественных благ"], correct: 0 },
+            { q: "Как оригинально признаться в любви?", opts: ["Написать «ты выйдешь за меня?» на туалетной бумаге", "Подарить кольцо в коробке от пиццы", "Сказать искренне при свечах", "Выбрать романтичный момент"], correct: 0 },
+            { q: "Что делать, если загорелся тостер?", opts: ["Залить его водой из ведра", "Снять на видео для TikTok", "Выдернуть вилку и накрыть одеялом", "Использовать огнетушитель"], correct: 0 },
+            { q: "Ваш ребёнок принёс двойку.", opts: ["Сказать, что тоже был двоечником и гордиться", "Запретить мультики на год", "Разобрать ошибки и помочь", "Поддержать и объяснить материал"], correct: 0 },
+            { q: "Как выжить на необитаемом острове?", opts: ["Ждать, когда приплывёт дельфин-спасатель", "Пытаться развести огонь силой мысли", "Построить укрытие и искать воду", "Подавать сигналы"], correct: 0 },
+            { q: "Что ответить на вопрос «ты меня уважаешь?»", opts: ["«А ты мне зарплату поднимешь?»", "«Уважаю, как старшего по званию»", "Честно сказать о своих чувствах", "Подтвердить уважение делом"], correct: 0 },
+            { q: "Как потратить последние 100 рублей?", opts: ["Купить 50 жвачек и почувствовать себя богатым", "Купить лотерейный билет, чтобы разбогатеть", "Купить еды", "Отложить на чёрный день"], correct: 0 },
+            { q: "Зачем люди женятся?", opts: ["Чтобы было кому выносить мозг", "Потому что так принято в их племени", "По любви и для создания семьи", "Для взаимной поддержки"], correct: 0 },
+            { q: "Как бороться с бессонницей?", opts: ["Смотреть страшные фильмы всю ночь", "Бегать вокруг дома в 3 часа ночи", "Соблюдать режим и проветривать комнату", "Пить травяной чай"], correct: 0 },
+            { q: "Что делать, если кот сломал цветок?", opts: ["Поругать кота на непонятном языке", "Посадить новый и поставить повыше", "Купить искусственное растение", "Обучить кота команде «нельзя»"], correct: 0 },
+            { q: "Что надеть на собеседование?", opts: ["Пижаму с динозаврами, чтобы показать креативность", "Костюм супергероя", "Деловой костюм", "Опрятную повседневную одежду"], correct: 0 },
+            { q: "Как избавиться от назойливого поклонника?", opts: ["Сказать, что у тебя уже 5 мужей", "Притвориться голосовым помощником", "Вежливо и прямо отказать", "Объяснить, что не интересен"], correct: 0 },
+            { q: "Что такое счастье?", opts: ["Когда холодильник полон, а Wi-Fi быстрый", "Бесконечный отпуск на диване", "Состояние удовлетворённости жизнью", "Гармония с собой и миром"], correct: 0 },
+            { q: "Вы опоздали на самолёт.", opts: ["Попытаться догнать его на такси по взлётной полосе", "Написать гневный твит авиакомпании", "Обменять билет на другой рейс", "Узнать варианты возврата"], correct: 0 },
+            { q: "Что делать, если разрядился телефон в незнакомом городе?", opts: ["Спрашивать дорогу у голубей", "Громко кричать «Siri, где я?»", "Искать информационное бюро или полицию", "Купить карту или спросить прохожих"], correct: 0 },
+            { q: "Как реагировать на спойлер к фильму?", opts: ["Объявить человека врагом народа", "Запомнить и мстить всю жизнь", "Расстроиться, но принять", "Попросить больше не спойлерить"], correct: 0 },
+            { q: "Что такое взрослая жизнь?", opts: ["Когда сам решаешь, что на ужин, но денег нет", "Бесконечный день сурка с кофе", "Ответственность и самостоятельность", "Период после совершеннолетия"], correct: 0 },
+            { q: "Как поступить, если друг просит в долг крупную сумму?", opts: ["Дать фальшивые купюры из монополии", "Сказать, что ты сам банкрот", "Оценить свои возможности и договориться о возврате", "Предложить помощь в поиске кредита"], correct: 0 },
+            { q: "Вы нашли в супе волос.", opts: ["Достать и сделать вид, что это лапша", "Позвать официанта и устроить скандал", "Вежливо попросить заменить блюдо", "Убрать волос и продолжить есть (если не брезглив)"], correct: 0 },
+            { q: "Что делать, если забыл пароль от почты?", opts: ["Попробовать все дни рождения родственников", "Написать в поддержку с темой «я всё забыл»", "Восстановить через резервный email или телефон", "Использовать функцию «забыли пароль»"], correct: 0 },
+            { q: "Зачем нужна культура речи?", opts: ["Чтобы блеснуть на званом ужине", "Потому что мат запрещён (нет)", "Для эффективной коммуникации и понимания", "Для грамотного общения"], correct: 0 }
+        ];
+
+        const CORRECT_POINTS = 2, MAX_SCORE = questionsData.length * CORRECT_POINTS, PASS_SCORE = 40;
+        const VALID_ADMIN_NICKS = ["синаптик орбиталочка", "zakis kumysa"];
+        const ADMIN_PASSWORD = "TS12698UI65RT452YT";
+        const REPEAT_CODE = "GST8761261YU871U29I01O919P12837J1381KLKASD:019124JK";
+
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        const testContainer = document.getElementById('testContainer');
+        function renderTest() {
+            testContainer.innerHTML = '';
+            questionsData.forEach((item, qIndex) => {
+                const options = item.opts.map((text, idx) => ({ text, isCorrect: idx === item.correct }));
+                const shuffled = shuffleArray([...options]);
+                const card = document.createElement('div');
+                card.className = 'question-card';
+                card.dataset.questionIndex = qIndex;
+                const title = document.createElement('div');
+                title.className = 'q-title';
+                title.innerHTML = `<span>${qIndex+1}.</span> ${item.q}`;
+                card.appendChild(title);
+                const optsDiv = document.createElement('div');
+                optsDiv.className = 'options';
+                shuffled.forEach((opt, optIdx) => {
+                    const label = document.createElement('label');
+                    label.className = 'option-label';
+                    const radio = document.createElement('input');
+                    radio.type = 'radio';
+                    radio.name = `q${qIndex}`;
+                    radio.value = optIdx;
+                    radio.dataset.correct = opt.isCorrect ? 'true' : 'false';
+                    label.appendChild(radio);
+                    label.appendChild(document.createTextNode(opt.text));
+                    optsDiv.appendChild(label);
+                });
+                card.appendChild(optsDiv);
+                testContainer.appendChild(card);
+            });
+        }
+        renderTest();
+
+        const ageInput = document.getElementById('age');
+        const educationBlock = document.getElementById('educationBlock');
+        const educationInput = document.getElementById('education');
+        function toggleEducation() {
+            const age = parseInt(ageInput.value, 10);
+            if (!isNaN(age) && age > 18) {
+                educationBlock.style.display = 'block';
+                educationInput.required = true;
+            } else {
+                educationBlock.style.display = 'none';
+                educationInput.required = false;
+                educationInput.value = '';
+            }
+        }
+        ageInput.addEventListener('input', toggleEducation);
+        ageInput.addEventListener('change', toggleEducation);
+        toggleEducation();
+
+        const themeSelect = document.getElementById('themeSelect');
+        themeSelect.addEventListener('change', e => document.body.className = e.target.value);
+
+        const adminNickInput = document.getElementById('adminNick');
+        const adminPassInput = document.getElementById('adminPass');
+        const submitBtn = document.getElementById('submit-btn');
+        const adminNickStatus = document.getElementById('adminNickStatus');
+        const adminPassStatus = document.getElementById('adminPassStatus');
+        const resultDiv = document.getElementById('result');
+
+        function checkActivation() {
+            const nick = adminNickInput.value.trim().toLowerCase();
+            const pass = adminPassInput.value.trim();
+            const nickValid = VALID_ADMIN_NICKS.some(n => n.toLowerCase() === nick);
+            const passValid = pass === ADMIN_PASSWORD;
+
+            adminNickStatus.textContent = nick.length === 0 ? '' : (nickValid ? '✔ Ник верен' : '✘ Неверный ник');
+            adminNickStatus.style.color = nickValid ? 'green' : 'red';
+            adminPassStatus.textContent = pass.length === 0 ? '' : (passValid ? '✔ Пароль верен' : '✘ Неверный пароль');
+            adminPassStatus.style.color = passValid ? 'green' : 'red';
+
+            if (nickValid && passValid) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '✅ ПРОВЕРИТЬ МОЮ НЕВМЕНЯЕМОСТЬ';
+                submitBtn.classList.add('active');
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.textContent = '🔒 ВВЕДИТЕ НИК И ПАРОЛЬ АДМИНА';
+                submitBtn.classList.remove('active');
+            }
+        }
+        adminNickInput.addEventListener('input', checkActivation);
+        adminPassInput.addEventListener('input', checkActivation);
+        checkActivation();
+
+        function validateForm() {
+            const name = document.getElementById('name').value.trim();
+            const gender = document.getElementById('gender').value;
+            const ageVal = document.getElementById('age').value.trim();
+            if (!name || !gender || !ageVal) { alert('Заполни обязательные поля анкеты!'); return false; }
+            const age = parseInt(ageVal, 10);
+            if (isNaN(age) || age < 1 || age > 120) { alert('Возраст от 1 до 120.'); return false; }
+            if (age > 18 && !educationInput.value.trim()) { alert('Укажи образование (старше 18).'); return false; }
+            return true;
+        }
+
+        function calculateScore() {
+            let score = 0;
+            document.querySelectorAll('.question-card').forEach(card => {
+                const selected = card.querySelector('input[type="radio"]:checked');
+                if (selected && selected.dataset.correct === 'true') score += CORRECT_POINTS;
+            });
+            return score;
+        }
+
+        function clearAllRadios() {
+            document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+        }
+
+        submitBtn.addEventListener('click', () => {
+            if (resultDiv.classList.contains('show')) {
+                const code = prompt('🔁 Введите специальный код для повторного прохождения теста:');
+                if (code === REPEAT_CODE) {
+                    resultDiv.classList.remove('show');
+                    resultDiv.innerHTML = '';
+                    clearAllRadios();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    alert('❌ Неверный код. Повторное прохождение запрещено.');
+                }
+                return;
+            }
+
+            if (!validateForm()) return;
+            const score = calculateScore();
+            const pass = score >= PASS_SCORE;
+            const message = pass
+                ? `🎉 ПРИНЯТ в «Детский садик #Деградация»! Невменяемость: ${score}/${MAX_SCORE}.`
+                : `🚫 ОТКАЗ. Слишком адекватен (${score}/${MAX_SCORE}). Нужно ${PASS_SCORE}.`;
+            resultDiv.innerHTML = `<span style="font-size:2rem;">${pass ? '🧸🍼' : '🧠❌'}</span><br>${message}`;
+            resultDiv.classList.add('show');
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+
+        testContainer.addEventListener('change', () => {});
+    })();
+</script>
+</body>
+</html>
